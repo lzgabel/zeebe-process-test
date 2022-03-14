@@ -67,23 +67,14 @@ final class EngineStateMonitor implements LogStorage.CommitListener {
   }
 
   private boolean isInIdleState() {
-    try {
-      return CompletableFuture.supplyAsync(
-              () -> streamProcessor.hasProcessingReachedTheEnd().join())
-          .join();
-    } catch (final Exception e) {
-      if (e.getMessage().contains("Actor is closed")) {
-        return true;
-      } else {
-        throw e;
-      }
-    }
+    return CompletableFuture.supplyAsync(() -> streamProcessor.hasProcessingReachedTheEnd().join())
+        .join();
   }
 
   @Override
   public void onCommit() {
     notifyProcessingCallbacks(); // notify processing callbacks immediately
-    if (idleCallbacks.isEmpty() && processingCallbacks.isEmpty()) {
+    if (!idleCallbacks.isEmpty() || !processingCallbacks.isEmpty()) {
       scheduleStateNotification();
     }
   }
@@ -109,7 +100,7 @@ final class EngineStateMonitor implements LogStorage.CommitListener {
 
       @Override
       public void run() {
-        if (isInIdleState()) {
+        if ((!idleCallbacks.isEmpty() || !processingCallbacks.isEmpty()) && isInIdleState()) {
           idleStateReachedCounter++;
 
           if (idleStateReachedCounter >= NOTIFICATION_THRESHOLD) {
