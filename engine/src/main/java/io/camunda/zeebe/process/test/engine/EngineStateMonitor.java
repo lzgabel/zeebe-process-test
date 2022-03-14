@@ -100,16 +100,18 @@ final class EngineStateMonitor implements LogStorage.CommitListener {
 
       @Override
       public void run() {
-        if ((!idleCallbacks.isEmpty() || !processingCallbacks.isEmpty()) && isInIdleState()) {
-          idleStateReachedCounter++;
+        if (!idleCallbacks.isEmpty() || !processingCallbacks.isEmpty()) {
+          if (isInIdleState()) {
+            idleStateReachedCounter++;
 
-          if (idleStateReachedCounter >= NOTIFICATION_THRESHOLD) {
-            notifyIdleCallbacks();
+            if (idleStateReachedCounter >= NOTIFICATION_THRESHOLD) {
+              notifyIdleCallbacks();
+            }
+          } else {
+            idleStateReachedCounter = 0;
+
+            notifyProcessingCallbacks();
           }
-        } else {
-          idleStateReachedCounter = 0;
-
-          notifyProcessingCallbacks();
         }
         if (idleCallbacks.isEmpty() && processingCallbacks.isEmpty()) {
           cancel();
