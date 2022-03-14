@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Monitor that monitors whether the engine is busy or in idle state. Busy state is a state in which
@@ -67,8 +66,7 @@ final class EngineStateMonitor implements LogStorage.CommitListener {
   }
 
   private boolean isInIdleState() {
-    return CompletableFuture.supplyAsync(() -> streamProcessor.hasProcessingReachedTheEnd().join())
-        .join();
+    return streamProcessor.hasProcessingReachedTheEnd().join();
   }
 
   @Override
