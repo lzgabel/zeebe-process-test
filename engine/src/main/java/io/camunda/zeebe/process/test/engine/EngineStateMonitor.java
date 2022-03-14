@@ -83,7 +83,9 @@ final class EngineStateMonitor implements LogStorage.CommitListener {
   @Override
   public void onCommit() {
     notifyProcessingCallbacks(); // notify processing callbacks immediately
-    scheduleStateNotification();
+    if (idleCallbacks.isEmpty() && processingCallbacks.isEmpty()) {
+      scheduleStateNotification();
+    }
   }
 
   private void notifyIdleCallbacks() {
