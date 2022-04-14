@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Monitor that monitors whether the engine is busy or in idle state. Busy state is a state in which
@@ -24,6 +26,8 @@ import java.util.TimerTask;
  * PERIOD * NOTIFICATION_THRESHOLD</code> ms<br>
  */
 final class EngineStateMonitor implements LogStorage.CommitListener {
+
+  private static final Logger LOG = LoggerFactory.getLogger(EngineStateMonitor.class);
 
   private static final int GRACE_PERIOD_MS = 50;
   private static final int NOTIFICATION_THRESHOLD = 2;
@@ -66,7 +70,16 @@ final class EngineStateMonitor implements LogStorage.CommitListener {
   }
 
   private boolean isInIdleState() {
-    return streamProcessor.hasProcessingReachedTheEnd().join();
+    try {
+      return streamProcessor.hasProcessingReachedTheEnd().join();
+    } catch (final Exception e) {
+      LOG.debug("Exception occurred while checking idle state", e);
+      // A ExecutionException may be thrown here if the actor is already closed. For some mysterious
+      // reason this causes the testcontainer to terminate, which is why we need to catch it.
+      // We cannot catch the ExecutionException itself, as Zeebe turns this into an unchecked
+      // exception. Because of this we need to catch Exception instead.
+      return false;
+    }
   }
 
   @Override
