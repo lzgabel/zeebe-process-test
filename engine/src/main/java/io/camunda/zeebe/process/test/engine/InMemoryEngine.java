@@ -14,6 +14,7 @@ import io.camunda.zeebe.engine.state.ZbColumnFamilies;
 import io.camunda.zeebe.logstreams.log.LogStream;
 import io.camunda.zeebe.process.test.api.RecordStreamSource;
 import io.camunda.zeebe.process.test.api.ZeebeTestEngine;
+import io.camunda.zeebe.process.test.engine.exporter.stream.ExporterDirector;
 import io.camunda.zeebe.util.sched.ActorScheduler;
 import io.camunda.zeebe.util.sched.clock.ControlledActorClock;
 import io.grpc.Server;
@@ -39,6 +40,7 @@ class InMemoryEngine implements ZeebeTestEngine {
   private final RecordStreamSource recordStream;
   private final ControlledActorClock clock;
   private final EngineStateMonitor engineStateMonitor;
+  private final ExporterDirector director;
 
   public InMemoryEngine(
       final Server grpcServer,
@@ -49,7 +51,8 @@ class InMemoryEngine implements ZeebeTestEngine {
       final ActorScheduler scheduler,
       final RecordStreamSource recordStream,
       final ControlledActorClock clock,
-      final EngineStateMonitor engineStateMonitor) {
+      final EngineStateMonitor engineStateMonitor,
+      final ExporterDirector director) {
     this.grpcServer = grpcServer;
     this.streamProcessor = streamProcessor;
     this.gateway = gateway;
@@ -59,6 +62,7 @@ class InMemoryEngine implements ZeebeTestEngine {
     this.recordStream = recordStream;
     this.clock = clock;
     this.engineStateMonitor = engineStateMonitor;
+    this.director = director;
   }
 
   @Override
@@ -66,6 +70,7 @@ class InMemoryEngine implements ZeebeTestEngine {
     try {
       grpcServer.start();
       streamProcessor.openAsync(false).join();
+      director.startAsync(scheduler).join();
     } catch (final IOException e) {
       LOG.error("Failed starting in memory engine", e);
       throw new RuntimeException(e);
@@ -121,6 +126,7 @@ class InMemoryEngine implements ZeebeTestEngine {
     try {
       idleState.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
     } catch (final ExecutionException e) {
+      e.printStackTrace();
       // Do nothing. ExecutionExceptions won't appear. The function only completes the future, which
       // in itself does not throw any exceptions.
     }
@@ -136,6 +142,7 @@ class InMemoryEngine implements ZeebeTestEngine {
     try {
       processingState.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
     } catch (final ExecutionException e) {
+      e.printStackTrace();
       // Do nothing. ExecutionExceptions won't appear. The function only completes the future, which
       // in itself does not throw any exceptions.
     }

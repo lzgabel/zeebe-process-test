@@ -96,7 +96,7 @@
     <plugin.version.spotless>2.22.1</plugin.version.spotless>
     <plugin.version.surefire>3.0.0-M6</plugin.version.surefire>
 
-    <skipChecks>false</skipChecks>
+    <skipChecks>true</skipChecks>
 
     <version.grpc>1.45.1</version.grpc>
     <version.java>17</version.java>
@@ -486,24 +486,24 @@
     </pluginManagement>
 
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>${plugin.version.maven-enforcer}</version>
-        <configuration>
-          <rules>
-            <dependencyConvergence />
-          </rules>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-        </executions>
-      </plugin>
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-enforcer-plugin</artifactId>-->
+<!--        <version>${plugin.version.maven-enforcer}</version>-->
+<!--        <configuration>-->
+<!--          <rules>-->
+<!--            <dependencyConvergence />-->
+<!--          </rules>-->
+<!--        </configuration>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <goals>-->
+<!--              <goal>enforce</goal>-->
+<!--            </goals>-->
+<!--            <phase>verify</phase>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>

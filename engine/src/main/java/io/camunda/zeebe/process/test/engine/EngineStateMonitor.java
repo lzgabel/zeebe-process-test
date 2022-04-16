@@ -47,7 +47,7 @@ final class EngineStateMonitor implements LogStorage.CommitListener, StreamProce
   private volatile TimerTask idleStateNotifier =
       createIdleStateNotifier(); // must never be null for the synchronization to work
 
-  EngineStateMonitor(final InMemoryLogStorage logStorage, final LogStreamReader logStreamReader) {
+  EngineStateMonitor(final LogStorage logStorage, final LogStreamReader logStreamReader) {
     logStorage.addCommitListener(this);
 
     reader = logStreamReader;
